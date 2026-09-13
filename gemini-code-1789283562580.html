@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي المحاسبة التفاعلي | Accounting Master Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(22, 31, 48, 0.8);
+            --accent-glow: #00f2fe;
+            --accent-purple: #7928ca;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --correct-glow: #10b981;
+            --wrong-glow: #ef4444;
+            --option-bg: rgba(30, 41, 59, 0.7);
+            --option-hover: rgba(51, 65, 85, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(121, 40, 202, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.15) 0px, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 35px;
+            width: 100%;
+            max-width: 950px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-badge {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--accent-glow);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            color: var(--accent-glow);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-glow));
+            transition: width 0.4s ease;
+        }
+
+        .question-box {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: var(--accent-glow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            direction: ltr;
+            text-align: left;
+            color: #f1f5f9;
+            font-weight: 700;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 20px;
+            border-radius: 16px;
+            border-left: 4px solid var(--accent-glow);
+        }
+
+        /* تنسيق الأجوبة بجوار بعضها البعض */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            direction: ltr;
+        }
+
+        .option-btn {
+            background: var(--option-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px 20px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background: var(--option-hover);
+            border-color: var(--accent-glow);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.15);
+        }
+
+        .option-btn.correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: var(--correct-glow) !important;
+            color: #6ee7b7 !important;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .option-btn.wrong {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: var(--wrong-glow) !important;
+            color: #fca5a5 !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .feedback-banner {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback-correct {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--correct-glow);
+            color: #34d399;
+        }
+
+        .feedback-wrong {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--wrong-glow);
+            color: #f87171;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, var(--accent-glow) 0%, #0072ff 100%);
+            color: #000;
+            font-weight: 900;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .next-btn:hover:not([disabled]) {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+        }
+
+        .next-btn:disabled {
+            background: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .result-card h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #00f2fe, #7928ca);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #fff;
+            margin: 20px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 650px) {
+            .options-grid {
+                grid-template-columns: 1fr; /* يتحول لعمود واحد في الشاشات الصغيرة جدًا */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="header">
+        <div class="title">⚡ تحدي المحاسبة التفاعلي</div>
+        <div class="score-badge">النقاط: <span id="score">0</span> / <span id="total">10</span></div>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <div id="quiz-body">
+        <div class="question-box">
+            <div class="question-number" id="q-number">سؤال 1 من 10</div>
+            <div class="question-text" id="q-text"></div>
+        </div>
+
+        <!-- الخيارات مصممة بجوار بعضها البعض -->
+        <div class="options-grid" id="options-grid"></div>
+
+        <div class="feedback-banner" id="feedback"></div>
+
+        <div class="footer">
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()" disabled>السؤال التالي ➔</button>
+        </div>
+    </div>
+
+    <div class="result-card" id="result-card">
+        <h2>🎉 اكتمل التحدي!</h2>
+        <p style="color: var(--text-muted); font-size: 1.2rem;">لقد أنجزت جميع الأسئلة بنجاح</p>
+        <div class="score-display" id="final-score">0 / 10</div>
+        <p id="eval-message" style="font-size: 1.2rem; margin-bottom: 30px;"></p>
+        <button class="next-btn" onclick="restartQuiz()">إعادة التحدي 🔄</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            num: 41,
+            q: "Accountants refer to an economic event as a",
+            options: ["a. purchase.", "b. sale.", "c. transaction.", "d. change in ownership."],
+            correct: 2
+        },
+        {
+            num: 42,
+            q: "The process of recording transactions has become more efficient because",
+            options: [
+                "a. fewer events can be quantified in financial terms.",
+                "b. computers are used in processing business events.",
+                "c. more people have been hired to record business transactions.",
+                "d. business events are recorded only at the end of the year."
+            ],
+            correct: 1
+        },
+        {
+            num: 43,
+            q: "Communication of economic events is the part of the accounting process that involves",
+            options: [
+                "a. identifying economic events.",
+                "b. quantifying transactions into dollars and cents.",
+                "c. preparing accounting reports.",
+                "d. recording and classifying information."
+            ],
+            correct: 2
+        },
+        {
+            num: 44,
+            q: "Which of the following events cannot be quantified into dollars and cents and recorded as an accounting transaction?",
+            options: [
+                "a. The appointment of a new CPA firm to perform an audit.",
+                "b. The purchase of a new computer.",
+                "c. The sale of store equipment.",
+                "d. Payment of income taxes."
+            ],
+            correct: 0
+        },
+        {
+            num: 45,
+            q: "The use of computers in recording business events",
+            options: [
+                "a. has made the recording process more efficient.",
+                "b. does not use the same principles as manual accounting systems.",
+                "c. has greatly impacted the identification stage of the accounting process.",
+                "d. is economical only for large businesses."
+            ],
+            correct: 0
+        },
+        {
+            num: 46,
+            q: "The accounting process involves all of the following except",
+            options: [
+                "a. identifying economic transactions that are relevant to the business.",
+                "b. communicating financial information to users by preparing financial reports.",
+                "c. recording nonquantifiable economic events.",
+                "d. analyzing and interpreting financial reports."
+            ],
+            correct: 2
+        },
+        {
+            num: 47,
+            q: "The accounting process is correctly sequenced as",
+            options: [
+                "a. identification, communication, recording.",
+                "b. recording, communication, identification.",
+                "c. identification, recording, communication.",
+                "d. communication, recording, identification."
+            ],
+            correct: 2
+        },
+        {
+            num: 48,
+            q: "Which of the following techniques are not used by accountants to interpret and report financial information?",
+            options: [
+                "a. Graphs",
+                "b. Special memos for each class of external users",
+                "c. Charts",
+                "d. Ratios"
+            ],
+            correct: 1
+        },
+        {
+            num: 49,
+            q: "Which of the following would not be considered an internal user of accounting data for the XYZ Company?",
+            options: [
+                "a. President of the company",
+                "b. Production manager",
+                "c. Merchandise inventory clerk",
+                "d. President of the employees' labor union"
+            ],
+            correct: 3
+        },
+        {
+            num: 50,
+            q: "Which of the following would not be considered an external user of accounting data for the XYZ Company?",
+            options: [
+                "a. Internal Revenue Service Agent",
+                "b. Management",
+                "c. Creditors",
+                "d. Customers"
+            ],
+            correct: 1
+        }
+    ];
+
+    const positiveQuotes = [
+        "🌟 رائع جداً! إجابة صحيحة وحس محاسبي ممتاز!",
+        "🔥 أحسنت! دقة متناهية في الفهم المحاسبي!",
+        "🎯 إجابة دقيقة 100%! استمر في هذا الأداء الرائع!",
+        "🧠 ممتاز! تفكير مالي منظم وسليم!"
+    ];
+
+    const negativeQuotes = [
+        "❌ إجابة خاطئة! ركز جيداً في المفاهيم الأساسية.",
+        "⚠️ للأسف غير صحيح! راجع الخيار الصحيح المظلل بالأخضر.",
+        "💡 محاولة عثرة، لكنها فرصة ممتازة للتعلم!"
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+
+    function initQuiz() {
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const data = quizData[currentIndex];
+        document.getElementById('q-number').textContent = `السؤال ${currentIndex + 1} من ${quizData.length} (رقم ${data.num})`;
+        document.getElementById('q-text').textContent = data.q;
+        
+        // التحديث البصري لشريط التقدم
+        const progressPercent = ((currentIndex) / quizData.length) * 100;
+        document.getElementById('progress').style.width = `${progressPercent}%`;
+
+        const optionsGrid = document.getElementById('options-grid');
+        optionsGrid.innerHTML = '';
+
+        const feedback = document.getElementById('feedback');
+        feedback.style.display = 'none';
+
+        document.getElementById('next-btn').disabled = true;
+
+        // إدراج الأجوبة بجوار بعضها
+        data.options.forEach((optText, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = optText;
+            btn.onclick = () => checkAnswer(idx);
+            optionsGrid.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIdx) {
+        const data = quizData[currentIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        const feedback = document.getElementById('feedback');
+
+        buttons.forEach(b => b.disabled = true);
+
+        if (selectedIdx === data.correct) {
+            buttons[selectedIdx].classList.add('correct');
+            score++;
+            document.getElementById('score').textContent = score;
+
+            const randomPos = positiveQuotes[Math.floor(Math.random() * positiveQuotes.length)];
+            feedback.textContent = randomPos;
+            feedback.className = 'feedback-banner feedback-correct';
+        } else {
+            buttons[selectedIdx].classList.add('wrong');
+            buttons[data.correct].classList.add('correct');
+
+            const randomNeg = negativeQuotes[Math.floor(Math.random() * negativeQuotes.length)];
+            feedback.textContent = `${randomNeg} الإجابة الصحيحة: ${data.options[data.correct]}`;
+            feedback.className = 'feedback-banner feedback-wrong';
+        }
+
+        feedback.style.display = 'block';
+        document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < quizData.length) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-body').style.display = 'none';
+        document.getElementById('progress').style.width = '100%';
+        
+        const resultCard = document.getElementById('result-card');
+        resultCard.style.display = 'block';
+
+        document.getElementById('final-score').textContent = `${score} / ${quizData.length}`;
+        
+        const evalMsg = document.getElementById('eval-message');
+        const ratio = score / quizData.length;
+
+        if (ratio === 1) {
+            evalMsg.textContent = "🏆 أداء خيالي! إتقان تام للمبادئ المحاسبية!";
+            evalMsg.style.color = "#34d399";
+        } else if (ratio >= 0.7) {
+            evalMsg.textContent = "👍 رائع جداً! استيعاب ممتاز للمادة.";
+            evalMsg.style.color = "#60a5fa";
+        } else {
+            evalMsg.textContent = "📚 يمكنك مراجعة المفاهيم وإعادة المحاولة للوصول للدرجة النهائة!";
+            evalMsg.style.color = "#f87171";
+        }
+    }
+
+    function restartQuiz() {
+        score = 0;
+        currentIndex = 0;
+        document.getElementById('score').textContent = '0';
+        document.getElementById('quiz-body').style.display = 'block';
+        document.getElementById('result-card').style.display = 'none';
+        showQuestion();
+    }
+
+    initQuiz();
+</script>
+
+</body>
+</html>
